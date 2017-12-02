@@ -126,4 +126,15 @@ end
 # edge cases for addition
 @testset "addition_edge" begin
     @test UFloat(0.5) + UFloat(0.6) == one(UFloat)
+    @test UFloat(1.0) + UFloat(0.00099) == one(UFloat)
+    @test UFloat(1.0) + UFloat(1.0) == one(UFloat)
+
+    # convergence to one
+    @test begin
+        v = UFloat(1.23e-3)
+        for _ in 1:1000
+            v += v
+        end
+        v == one(UFloat)
+    end
 end

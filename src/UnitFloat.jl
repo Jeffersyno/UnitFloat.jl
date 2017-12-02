@@ -4,6 +4,7 @@ module UnitFloat
 
 import Base:
     +,
+    -,
     *,
     bits,
     convert,
@@ -124,11 +125,7 @@ function +(a::UFloat, b::UFloat)::UFloat
     sn = sb + ldexp(sa, ed)
     en = eb + exponent(sn)
 
-    if en == 0
-        sn = 0.0f0
-    end
-
-    _UFloat(en, sn)
+    en >= 0 ? one(UFloat) : _UFloat(en, sn)
 end
 
 
