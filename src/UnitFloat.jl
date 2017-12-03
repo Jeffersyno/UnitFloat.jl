@@ -63,6 +63,12 @@ signbit(u::UFloat) = false
     # gives incorrect results for zero(UFloat) and one(UFloat)
     -reinterpret(Int64, ~reinterpret(UInt64, u) >> 23)
 end
+@inline function _exponent_unsafe(f::Float32) 
+    Int64((reinterpret(UInt32, f) & 0x7f800000) >> 23) - 127
+end
+@inline function _exponent_unsafe(f::Float64)
+    Int64((reinterpret(UInt64, f) & 0x7ff0000000000000) >> 52) - 1023
+end
 
 function exponent(u::UFloat)
     is_zero(u) && throw(DomainError())
@@ -74,6 +80,12 @@ end
     bits = UInt32((reinterpret(UInt64, u) & 0x00000000007fffff)) # zero first 41 bits
     bits |= 0x3f800000 # add zero exponent to Float32
     reinterpret(Float32, bits)
+end
+@inline function _significand_unsafe(f::Float32)
+    reinterpret(Float32, (reinterpret(UInt32, f) & 0x007fffff) | 0x3f800000)
+end
+@inline function _significand_unsafe(f::Float64)
+    _significand_unsafe(Float32(f))
 end
 
 function significand(u::UFloat)
@@ -102,19 +114,19 @@ end
 ###############################################################################
 
 
-function *(a::UFloat, b::UFloat)::UFloat
+function _multiply(a, b)::UFloat
     sa = _significand_unsafe(a)
     sb = _significand_unsafe(b)
     ea = _exponent_unsafe(a)
     eb = _exponent_unsafe(b)
 
     sn = sa * sb
-    en = ea + eb + exponent(sn) # cannot be <= 1<<41
+    en = ea + eb + _exponent_unsafe(sn) # cannot be <= 1<<41
 
     en > -2199023255552 ? _UFloat(en, sn) : zero(UFloat)
 end
 
-function +(a::UFloat, b::UFloat)::UFloat
+@inline function _add(a, b)::UFloat
     sa = _significand_unsafe(a)
     sb = _significand_unsafe(b)
     ea = _exponent_unsafe(a)
@@ -123,9 +135,18 @@ function +(a::UFloat, b::UFloat)::UFloat
     ed = ea - eb
 
     sn = sb + ldexp(sa, ed)
-    en = eb + exponent(sn)
+    en = eb + _exponent_unsafe(sn)
 
     en >= 0 ? one(UFloat) : _UFloat(en, sn)
+end
+
++(a::UFloat, b::UFloat) = _add(a, b)
+*(a::UFloat, b::UFloat) = _multiply(a, b)
+for T in [Float32, Float64], (op, fn) in [(:+, :_add), (:*, :_multiply)]
+    @eval begin
+        ($op)(a::UFloat, b::$T) = ($fn)(a, b)
+        ($op)(a::$T, b::UFloat) = ($fn)(a, b)
+    end
 end
 
 
