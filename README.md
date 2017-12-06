@@ -1,5 +1,7 @@
 # UnitFloat.jl
 
+[![Build Status](https://travis-ci.org/Jeffersyno/UnitFloat.jl.svg?branch=master)](https://travis-ci.org/Jeffersyno/UnitFloat.jl)
+
 A 64-bit floating point number implementation for the unit interval. A
 `UnitFloat` has the same precision as a 32-bit single precision floating point
 number but has a much larger dynamic range.
