@@ -1,6 +1,6 @@
 # UnitFloat.jl
 
-[![Build Status](https://travis-ci.org/Jeffersyno/UnitFloat.jl.svg?branch=master)](https://travis-ci.org/Jeffersyno/UnitFloat.jl)
+[![Build Status](https://travis-ci.org/Jeffersyno/UnitFloat.jl.svg?branch=master)](https://travis-ci.org/Jeffersyno/UnitFloat.jl) [![Coverage Status](https://coveralls.io/repos/github/Jeffersyno/UnitFloat.jl/badge.svg?branch=master)](https://coveralls.io/github/Jeffersyno/UnitFloat.jl?branch=master)
 
 A 64-bit floating point number implementation for the unit interval. A
 `UnitFloat` has the same precision as a 32-bit single precision floating point
