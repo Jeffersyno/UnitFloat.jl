@@ -181,6 +181,8 @@ end
     sa < sb
 end
 
+isless(a::UFloat, b::UFloat) = _isless(a, b)
+
 begin
     local T = [UFloat, Float32, Float64]
     for T1 in T, T2 in T
@@ -190,25 +192,6 @@ begin
             end
         end
     end
-end
-
-function isless(a::UFloat, b::UFloat)
-    a == one(UFloat) && return false
-    b == one(UFloat) && return true # assumed a ≠ 1.0
-    b == zero(UFloat) && return false
-    a == zero(UFloat) && return true # assumed b ≠ 0.0
-
-    ea = _exponent_unsafe(a)
-    eb = _exponent_unsafe(b)
-
-    ea < eb && return true
-    ea > eb && return false
-
-    # ea == eb
-    sa = _significand_unsafe(a)
-    sb = _significand_unsafe(b)
-
-    sa < sb
 end
 
 ###############################################################################

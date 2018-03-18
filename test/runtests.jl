@@ -157,9 +157,13 @@ end
         f0 = ldexp.(rand(rng, Float32, (N, 1)), rand(rng, order))
         f1 = ldexp.(rand(rng, Float32, (N, 1)), rand(rng, order))
         f2 = f0 .< f1
-        f3 = UFloat.(f0) .< UFloat.(f1)
+        f31 = f0 .< UFloat.(f1)
+        f32 = UFloat.(f0) .< f1
+        f41 = Float64.(f0) .< UFloat.(f1)
+        f42 = UFloat.(f0) .< Float64.(f1)
+        f5 = UFloat.(f0) .< UFloat.(f1)
 
-        @test f2 == f3
+        @test f2 == f31 == f32 == f41 == f42 == f5
     end
 end
 
