@@ -113,6 +113,9 @@ function convert(::Type{F}, u::UFloat) where {F<:AbstractFloat}
     ldexp(F(frac), exp)
 end
 
+convert(::Type{UFloat}, b::Bool) = b ? one(UFloat) : zero(UFloat)
+convert(::Type{Bool}, u::UFloat) = u == one(UFloat)
+
 ###############################################################################
 
 

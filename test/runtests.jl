@@ -77,6 +77,14 @@ end
     end
 end
 
+# conversion Bool->UFloat->Bool
+@testset "conversion_bool_uf_bool" begin
+    @test UFloat(true) == one(UFloat)
+    @test UFloat(false) == zero(UFloat)
+    @test true == Bool(one(UFloat))
+    @test false == Bool(zero(UFloat))
+end
+
 # multiplication in UFloat must produce same results as multiplication in
 # Float32 (considering limited dynamic range of Float32)
 @testset "multiplication" begin
