@@ -148,3 +148,26 @@ end
         v == one(UFloat)
     end
 end
+
+@testset "isless" begin
+    rng = MersenneTwister(4)
+    order = -1:-1:-60
+
+    for _ in 1:100
+        f0 = ldexp.(rand(rng, Float32, (N, 1)), rand(rng, order))
+        f1 = ldexp.(rand(rng, Float32, (N, 1)), rand(rng, order))
+        f2 = f0 .< f1
+        f3 = UFloat.(f0) .< UFloat.(f1)
+
+        @test f2 == f3
+    end
+end
+
+@testset "isless_edge" begin
+    @test !(zero(UFloat) < zero(UFloat))
+    @test !(one(UFloat) < one(UFloat))
+    @test zero(UFloat) < one(UFloat)
+    @test !(one(UFloat) < zero(UFloat))
+    @test !(one(UFloat) < UFloat(.33))
+    @test zero(UFloat) < UFloat(.33)
+end

@@ -9,6 +9,9 @@ import Base:
     bits,
     convert,
     exponent,
+    isfinite,
+    isinf,
+    isless,
     one,
     show,
     signbit,
@@ -57,6 +60,8 @@ typemin(::Type{UFloat}) = zero(UFloat)
 typemax(::Type{UFloat}) = one(UFloat)
 typemin(::UFloat) = zero(UFloat)
 typemax(::UFloat) = one(UFloat)
+isinf(::UFloat) = false
+isfinite(::UFloat) = true
 
 bits(u::UFloat) = bits(reinterpret(UInt64, u))
 signbit(u::UFloat) = false
@@ -154,6 +159,57 @@ for T in [Float32, Float64], (op, fn) in [(:+, :_add), (:*, :_multiply)]
     end
 end
 
+
+###############################################################################
+
+@inline function _isless(a, b)::Bool
+    a == one(typeof(a)) && return false
+    b == one(typeof(b)) && return true # assumed a ≠ 1.0
+    b == zero(typeof(b)) && return false
+    a == zero(typeof(a)) && return true # assumed b ≠ 0.0
+
+    ea = _exponent_unsafe(a)
+    eb = _exponent_unsafe(b)
+
+    ea < eb && return true
+    ea > eb && return false
+
+    # ea == eb
+    sa = _significand_unsafe(a)
+    sb = _significand_unsafe(b)
+
+    sa < sb
+end
+
+begin
+    local T = [UFloat, Float32, Float64]
+    for T1 in T, T2 in T
+        if T1 != T2
+            @eval begin
+                isless(a::$T1, b::$T2) = _isless(a, b)
+            end
+        end
+    end
+end
+
+function isless(a::UFloat, b::UFloat)
+    a == one(UFloat) && return false
+    b == one(UFloat) && return true # assumed a ≠ 1.0
+    b == zero(UFloat) && return false
+    a == zero(UFloat) && return true # assumed b ≠ 0.0
+
+    ea = _exponent_unsafe(a)
+    eb = _exponent_unsafe(b)
+
+    ea < eb && return true
+    ea > eb && return false
+
+    # ea == eb
+    sa = _significand_unsafe(a)
+    sb = _significand_unsafe(b)
+
+    sa < sb
+end
 
 ###############################################################################
 
