@@ -9,8 +9,6 @@ N = 1000
     for T in [Float32, Float64, BigFloat]
         @test zero(T) == T(zero(UFloat))
         @test one(T) == T(one(UFloat))
-        @test UnitFloat.is_zero(zero(UFloat))
-        @test UnitFloat.is_one(one(UFloat))
         @test significand(zero(T)) == significand(zero(UFloat))
         @test significand(one(T)) == significand(one(UFloat))
         @test exponent(one(T)) == exponent(one(UFloat))
@@ -18,6 +16,10 @@ N = 1000
         @test_throws DomainError exponent(zero(UFloat))
     end
 
+    @test UnitFloat.is_zero(zero(UFloat))
+    @test UnitFloat.is_one(one(UFloat))
+    @test typemin(UFloat) == zero(UFloat)
+    @test typemax(UFloat) == one(UFloat)
 end
 
 @testset "simple_show" begin

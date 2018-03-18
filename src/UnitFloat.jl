@@ -53,6 +53,8 @@ end
 @inline one(::Type{UFloat})  = reinterpret(UFloat, 0xffffffffff800000)
 zero(::UFloat) = zero(UFloat)
 one(::UFloat) = one(UFloat)
+typemin(::Type{UFloat}) = zero(UFloat)
+typemax(::Type{UFloat}) = one(UFloat)
 typemin(::UFloat) = zero(UFloat)
 typemax(::UFloat) = one(UFloat)
 
