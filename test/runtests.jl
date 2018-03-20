@@ -16,10 +16,26 @@ N = 1000
         @test_throws DomainError exponent(zero(UFloat))
     end
 
-    @test UnitFloat.is_zero(zero(UFloat))
-    @test UnitFloat.is_one(one(UFloat))
+    @test zero(UFloat(1.2e-3)) == zero(UFloat)
+    @test one(UFloat(1.2e-3)) == one(UFloat)
+    @test UnitFloat._is_zero(zero(UFloat))
+    @test UnitFloat._is_one(one(UFloat))
+    @test UnitFloat._is_zero(0.0)
+    @test UnitFloat._is_one(1.0)
+    @test UnitFloat._is_zero(0.0f0)
+    @test UnitFloat._is_one(1.0f0)
     @test typemin(UFloat) == zero(UFloat)
     @test typemax(UFloat) == one(UFloat)
+    @test typemin(UFloat(1.2e-3)) == zero(UFloat)
+    @test typemax(UFloat(1.2e-3)) == one(UFloat)
+    @test isinf(zero(UFloat)) == false
+    @test isfinite(zero(UFloat)) == true
+    @test signbit(one(UFloat)) == false
+    @test bits(zero(UFloat)) == "0000000000000000000000000000000000000000000000000000000000000000"
+    @test bits(one(UFloat)) == "1111111111111111111111111111111111111111100000000000000000000000"
+    @test bits(UFloat(1.24f-1)) == "1111111111111111111111111111111111" * bits(1.24f-1)[3:end]
+                                #   "111101111111011111001110110110"
+                                # "00111101111111011111001110110110" == bits(1.24f-1) -> discard sign bit of float and exponent
 end
 
 @testset "simple_show" begin
@@ -138,6 +154,11 @@ end
     @test UFloat(0.5) + UFloat(0.6) == one(UFloat)
     @test UFloat(1.0) + UFloat(0.00099) == one(UFloat)
     @test UFloat(1.0) + UFloat(1.0) == one(UFloat)
+    @test UFloat(0.0) + UFloat(0.0) == zero(UFloat)
+    @test UFloat(0.0) + 0.0 == zero(UFloat)
+    @test UFloat(0.0) + 0.0f0 == zero(UFloat)
+    @test 0.0 + UFloat(0.0) == zero(UFloat)
+    @test 0.0f0 + UFloat(0.0) == zero(UFloat)
 
     # convergence to one
     @test begin

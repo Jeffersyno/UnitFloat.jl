@@ -49,8 +49,8 @@ are used.
     reinterpret(UFloat, bits)
 end
 
-@inline is_zero(u::UFloat)   = u == zero(UFloat)
-@inline is_one(u::UFloat)    = u == one(UFloat)
+@inline _is_zero(x)   = x == zero(typeof(x))
+@inline _is_one(x)    = x == one(typeof(x))
 
 @inline zero(::Type{UFloat}) = reinterpret(UFloat, 0x0000000000000000)
 @inline one(::Type{UFloat})  = reinterpret(UFloat, 0xffffffffff800000)
@@ -78,7 +78,7 @@ end
 end
 
 function exponent(u::UFloat)
-    is_zero(u) && throw(DomainError())
+    _is_zero(u) && throw(DomainError())
     _exponent_unsafe(u)
 end
 
@@ -96,8 +96,8 @@ end
 end
 
 function significand(u::UFloat)
-    is_zero(u) && return 0.0f0
-    is_one(u) && return 1.0f0
+    _is_zero(u) && return 0.0f0
+    _is_one(u) && return 1.0f0
     _significand_unsafe(u)
 end
 
@@ -111,8 +111,8 @@ function convert(::Type{UFloat}, f::F) where {F<:AbstractFloat}
 end
 
 function convert(::Type{F}, u::UFloat) where {F<:AbstractFloat}
-    is_zero(u) && return zero(F)
-    is_one(u) && return one(F)
+    _is_zero(u) && return zero(F)
+    _is_one(u) && return one(F)
     frac = _significand_unsafe(u)
     exp = _exponent_unsafe(u)
     ldexp(F(frac), exp)
@@ -137,6 +137,9 @@ function _multiply(a, b)::UFloat
 end
 
 @inline function _add(a, b)::UFloat
+    _is_zero(a) && return UFloat(b)
+    _is_zero(b) && return UFloat(a)
+
     sa = _significand_unsafe(a)
     sb = _significand_unsafe(b)
     ea = _exponent_unsafe(a)
@@ -197,9 +200,9 @@ end
 ###############################################################################
 
 function show(io::IO, u::UFloat)
-    if is_zero(u)
+    if _is_zero(u)
         print(io, "0.0uf")
-    elseif is_one(u)
+    elseif _is_one(u)
         print(io, "1.0uf")
     else
         # represent the number as a×10^b, with b int
